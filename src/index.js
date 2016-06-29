@@ -1,6 +1,7 @@
 /* @flow */
 
 import FS from 'fs'
+import Path from 'path'
 import rimraf from 'rimraf'
 import promisify from 'sb-promisify'
 import { fillOptions } from './helpers'
@@ -8,12 +9,14 @@ import type { Options } from './types'
 
 const link = promisify(FS.link)
 const stat = promisify(FS.stat, false)
+const mkdir = promisify(FS.mkdir)
 const remove = promisify(rimraf)
-const readLink = promisify(FS.readLink)
+const readdir = promisify(FS.readdir)
+const readLink = promisify(FS.readlink)
 
 async function copy(source: string, destination: string, options: Options): Promise {
   const sourceInfo: FS.Stats = await stat(source)
-  const destinationInfo: FS.Stats = await stat(destination)
+  let destinationInfo: ?FS.Stats = await stat(destination)
   if (!sourceInfo) {
     throw new Error(`Source '${source}' doesn't exist`)
   }
@@ -26,6 +29,7 @@ async function copy(source: string, destination: string, options: Options): Prom
     }
     if ((sourceInfo.isFile() && !destinationInfo.isFile()) || (sourceInfo.isDirectory() && !destinationInfo.isDirectory())) {
       await remove(destination)
+      destinationInfo = null
     }
   }
   if (sourceInfo.isFile()) {
@@ -40,6 +44,22 @@ async function copy(source: string, destination: string, options: Options): Prom
     await link(destination, await readLink(source))
     return
   }
+  if (sourceInfo.isDirectory()) {
+    if (!destinationInfo) {
+      await mkdir(destination, sourceInfo.mode)
+    }
+    const sourceContents = await readdir(source)
+    const destinationContents = await readdir(destination)
+
+    const filesToDelete = destinationContents.filter(item => sourceContents.indexOf(item) === -1)
+    await Promise.all(filesToDelete.map(remove))
+
+    await Promise.all(sourceContents.map(function(item) {
+      return copy(Path.join(source, item), Path.join(destination, item), options)
+    }))
+    return
+  }
+  throw new Error(`Unable to determine type of '${source}'`)
 }
 
 function copyContent(source: string, destination: string, givenOptions: Object = {}): Promise {
