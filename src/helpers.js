@@ -13,6 +13,7 @@ export function fillOptions(options: Object): Options {
   }
   toReturn.dotFiles = Boolean(options.dotFiles)
   toReturn.overwrite = Boolean(options.overwrite)
+  toReturn.deleteExtra = Boolean(options.deleteExtra)
   toReturn.failIfExists = typeof options.failIfExists === 'boolean' ? options.failIfExists : true
   if (options.tickCallback) {
     invariant(typeof options.tickCallback === 'function', 'Options.tickCallback must be a function')

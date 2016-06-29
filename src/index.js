@@ -28,7 +28,9 @@ async function copy(source: string, destination: string, options: Options): Prom
       return
     }
     if ((sourceInfo.isFile() && !destinationInfo.isFile()) || (sourceInfo.isDirectory() && !destinationInfo.isDirectory())) {
-      await remove(destination)
+      await remove(destination, {
+        disableGlob: true
+      })
       destinationInfo = null
     }
   }
@@ -51,8 +53,14 @@ async function copy(source: string, destination: string, options: Options): Prom
     const sourceContents = await readdir(source)
     const destinationContents = await readdir(destination)
 
-    const filesToDelete = destinationContents.filter(item => sourceContents.indexOf(item) === -1)
-    await Promise.all(filesToDelete.map(remove))
+    if (options.deleteExtra) {
+      const filesToDelete = destinationContents.filter(item => sourceContents.indexOf(item) === -1)
+      await Promise.all(filesToDelete.map(function(item) {
+        return remove(Path.join(destination, item), {
+          disableGlob: true
+        })
+      }))
+    }
 
     await Promise.all(sourceContents.map(function(item) {
       return copy(Path.join(source, item), Path.join(destination, item), options)
