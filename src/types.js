@@ -1,10 +1,10 @@
 /* @flow */
 
 export type Options = {
-  filter: ((filePath: string) => boolean),
+  filter: ((source: string, destination: string) => boolean),
   dotFiles: boolean,
   overwrite: boolean,
   deleteExtra: boolean,
   failIfExists: boolean,
-  tickCallback: ((filePath: string, error: ?Error) => void)
+  tickCallback: ((source: string, destination: string) => void)
 }

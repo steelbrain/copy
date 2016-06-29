@@ -40,10 +40,12 @@ async function copy(source: string, destination: string, options: Options): Prom
         mode: sourceInfo.mode
       }, { end: true })).on('error', reject).on('close', resolve)
     })
+    options.tickCallback(source, destination)
     return
   }
   if (sourceInfo.isSymbolicLink()) {
     await link(destination, await readLink(source))
+    options.tickCallback(source, destination)
     return
   }
   if (sourceInfo.isDirectory()) {
@@ -62,9 +64,12 @@ async function copy(source: string, destination: string, options: Options): Prom
       }))
     }
 
-    await Promise.all(sourceContents.map(function(item) {
+    await Promise.all(sourceContents.filter(function(item) {
+      return options.filter(Path.join(source, item), Path.join(destination, item))
+    }).map(function(item) {
       return copy(Path.join(source, item), Path.join(destination, item), options)
     }))
+    options.tickCallback(source, destination)
     return
   }
   throw new Error(`Unable to determine type of '${source}'`)
