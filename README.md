@@ -18,6 +18,21 @@ export type Options = {
   failIfExists?: boolean,
   tickCallback?: ((source: string, destination: string) => void)
 }
+export default function copy(source: string, destination: string [, options: Options])
+```
+
+## Usage
+
+```js
+import copy from 'sb-copy'
+
+copy('./lib', './lib2', {
+  failIfExists: false,
+}).then(function() {
+  console.log('all files moved')
+}, function(error) {
+  console.log('files not moved', error)
+})
 ```
 
 ## License
