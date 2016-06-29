@@ -11,6 +11,7 @@ import { it } from 'jasmine-fix'
 import copy from '../'
 
 const stat = promisify(FS.stat, false)
+const read = promisify(FS.readFile)
 const remove = promisify(rimraf)
 
 describe('copy module', function() {
@@ -50,5 +51,25 @@ describe('copy module', function() {
     expect(await stat(dstPath)).toBe(null)
     await copy(srcPath, dstPath)
     expect((await stat(dstPath)).mode).toBe((await stat(srcPath)).mode)
+  })
+  it('does not replace contents of directories if its told to', async function() {
+    const srcFirstPath = getFixturePath('src/dir')
+    const srcSecondPath = getFixturePath('src/dir-2')
+    const dstPath = getFixturePath('dest/dir-replace-1')
+    await remove(dstPath)
+    expect(await stat(dstPath)).toBe(null)
+    await copy(srcFirstPath, dstPath)
+    await copy(srcSecondPath, dstPath, { failIfExists: false })
+    expect(await read(getFixturePath('dest/dir-replace-1/test.txt'), 'utf8')).toBe('Boom!\n')
+  })
+  it('does replaces contents of directories if its told to', async function() {
+    const srcFirstPath = getFixturePath('src/dir')
+    const srcSecondPath = getFixturePath('src/dir-2')
+    const dstPath = getFixturePath('dest/dir-replace-2')
+    await remove(dstPath)
+    expect(await stat(dstPath)).toBe(null)
+    await copy(srcFirstPath, dstPath)
+    await copy(srcSecondPath, dstPath, { overwrite: true })
+    expect(await read(getFixturePath('dest/dir-replace-2/test.txt'), 'utf8')).toBe('Hey!\n')
   })
 })

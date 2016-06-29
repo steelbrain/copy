@@ -23,19 +23,17 @@ async function copy(source: string, destination: string, options: Options): Prom
   if (!(await stat(Path.dirname(destination)))) {
     throw new Error(`Parent directory of destination '${destination}' doesn't exist`)
   }
-  if (destinationInfo) {
+  if (destinationInfo && (sourceInfo.isFile() || (sourceInfo.isDirectory() && !destinationInfo.isDirectory()))) {
     if (!options.overwrite) {
       if (options.failIfExists) {
         throw new Error(`Destination '${destination}' already exists`)
       }
       return
     }
-    if ((sourceInfo.isFile() && !destinationInfo.isFile()) || (sourceInfo.isDirectory() && !destinationInfo.isDirectory())) {
-      await remove(destination, {
-        disableGlob: true
-      })
-      destinationInfo = null
-    }
+    await remove(destination, {
+      disableGlob: true
+    })
+    destinationInfo = null
   }
   if (sourceInfo.isFile()) {
     await new Promise(function(resolve, reject) {
