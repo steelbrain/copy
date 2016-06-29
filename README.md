@@ -9,7 +9,7 @@ npm install -g sb-copy
 ```
 
 ## API
-```
+```js
 export type Options = {
   filter?: ((source: string, destination: string) => boolean),
   dotFiles?: boolean,
