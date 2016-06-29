@@ -1,6 +1,6 @@
 {
   "name": "sb-copy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Smooth recursive copies in Node.js",
   "main": "lib/index.js",
   "scripts": {
