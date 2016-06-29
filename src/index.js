@@ -20,6 +20,9 @@ async function copy(source: string, destination: string, options: Options): Prom
   if (!sourceInfo) {
     throw new Error(`Source '${source}' doesn't exist`)
   }
+  if (!(await stat(Path.dirname(destination)))) {
+    throw new Error(`Parent directory of destination '${destination}' doesn't exist`)
+  }
   if (destinationInfo) {
     if (!options.overwrite) {
       if (options.failIfExists) {
