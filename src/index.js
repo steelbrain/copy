@@ -14,7 +14,7 @@ const remove = promisify(rimraf)
 const readdir = promisify(FS.readdir)
 const readLink = promisify(FS.readlink)
 
-async function copy(source: string, destination: string, options: Options): Promise {
+async function copy(source: string, destination: string, options: Options): Promise<void> {
   const sourceInfo: FS.Stats = await stat(source)
   let destinationInfo: ?FS.Stats = await stat(destination)
   if (!sourceInfo) {
@@ -31,14 +31,14 @@ async function copy(source: string, destination: string, options: Options): Prom
       return
     }
     await remove(destination, {
-      disableGlob: true
+      disableGlob: true,
     })
     destinationInfo = null
   }
   if (sourceInfo.isFile()) {
     await new Promise(function(resolve, reject) {
       FS.createReadStream(source).pipe(FS.createWriteStream(destination, {
-        mode: sourceInfo.mode
+        mode: sourceInfo.mode,
       }, { end: true })).on('error', reject).on('close', resolve)
     })
     options.tickCallback(source, destination)
@@ -60,7 +60,7 @@ async function copy(source: string, destination: string, options: Options): Prom
       const filesToDelete = destinationContents.filter(item => sourceContents.indexOf(item) === -1)
       await Promise.all(filesToDelete.map(function(item) {
         return remove(Path.join(destination, item), {
-          disableGlob: true
+          disableGlob: true,
         })
       }))
     }
@@ -76,7 +76,7 @@ async function copy(source: string, destination: string, options: Options): Prom
   throw new Error(`Unable to determine type of '${source}'`)
 }
 
-function copyContent(source: string, destination: string, givenOptions: Object = {}): Promise {
+function copyContent(source: string, destination: string, givenOptions: Object = {}): Promise<void> {
   return copy(source, destination, fillOptions(givenOptions))
 }
 
