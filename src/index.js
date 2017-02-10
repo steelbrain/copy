@@ -24,9 +24,6 @@ async function copy(source: string, destination: string, options: Options): Prom
     throw new Error(`Parent directory of destination '${destination}' doesn't exist`)
   }
   if (destinationInfo && (sourceInfo.isFile() || (sourceInfo.isDirectory() && !destinationInfo.isDirectory()))) {
-    if (options.onExists) {
-      options.onExists(destinationInfo)
-    }
     if (!options.overwrite) {
       if (options.failIfExists) {
         throw new Error(`Destination '${destination}' already exists`)
