@@ -1,6 +1,8 @@
 Copy
 =====
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/steelbrain/copy.svg)](https://greenkeeper.io/)
+
 Copy is a node module that allows for smooth recursive copies in Node.js, it provides some shiny options to simplfy your packages.
 
 ## Installation
